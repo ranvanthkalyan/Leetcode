@@ -1,0 +1,196 @@
+1.) Construct Binary Tree from Preorder and Inorder Traversal
+class Solution:
+    def buildTree(self,preorder:List[int],inorder:List[int])->Optional[TreeNode]:
+         if not preorder and not inorder:
+              return None
+         root=TreeNode()
+         root.val=preorder[0]
+         mid=inorder.index(root.val)
+         root.left=self.buildTree(preorder[1:mid+1],inorder[0:mid])
+         root.right=self.buildTree(preorder[mid+1:],inorder[mid+1:])
+         return root
+
+2.) Construct Binary Tree from Inorder and Postorder Traversal
+class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        if not postorder and not inorder:
+            return None
+        root=TreeNode(postorder[-1])
+        index=inorder.index(postorder[-1])
+        root.left=self.buildTree(inorder[:index],postorder[:index])
+        root.right=self.buildTree(inorder[index+1:],postorder[index:-1])
+        return root
+
+3.)Construct Binary Tree from Preorder and Postorder Traversalclass Solution:
+class Solution:
+    def constructFromPrePost(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        if not preorder or not postorder:
+            return
+        root = TreeNode(preorder[0])
+        if len(preorder)==1:
+            return root
+        index=postorder.index(preorder[1])
+        root.left=self.constructFromPrePost(preorder[1:index+2],postorder[:index+1])
+        root.right=self.ConstructFromPrePost(preorder[index+2:],postorder[index+1:-1])
+        return root
+4.) Construct Sorted Array To Binary Search Tree
+class Solution:
+    def sortedArrayToBST(self,nums):
+        if not nums:
+            return None
+        mid=len(nums)//2
+        root=TreeNode(nums[mid])
+        root.left=self.sortedArrayToBST(nums[:mid])
+        root.right=self.sortedArrayToBST(nums[mid+1:])
+        return root
+
+
+5.) Construct Sorted List to Binary Search Tree
+class Solution:
+    def sortedListToBST(self, head: Optional[ListNode]) -> Optional[TreeNode]:
+        if not head:
+            return None
+        if not head.next:
+            return TreeNode(head.val)
+        slow = head
+        fast = head
+        mid = slow
+        while fast and fast.next:
+            mid = slow
+            slow = slow.next
+            fast = fast.next.next
+        node = TreeNode(slow.val)
+        mid.next = None
+        node.left = self.sortedListToBST(head)
+        node.right = self.sortedListToBST(slow.next)
+        return node
+
+
+6.)Maximum Sum Circular Subarray
+class Solution:
+  def maxSubarraySumCircular(self, A: List[int]) -> int:
+    totalSum = 0
+    currMaxSum = 0
+    currMinSum = 0
+    maxSum = -math.inf
+    minSum = math.inf
+
+    for a in A:
+      totalSum += a
+      currMaxSum = max(currMaxSum + a, a)
+      currMinSum = min(currMinSum + a, a)
+      maxSum = max(maxSum, currMaxSum)
+      minSum = min(minSum, currMinSum)
+
+    return maxSum if maxSum < 0 else max(maxSum, totalSum - minSum)
+
+7.) Balance a Binary Search Tree
+class Solution:
+
+    def inorder_bts(self, root):
+        if not root:
+            return []
+        return self.inorder_bts(root.left) + [root] + self.inorder_bts(root.right)
+    
+    def construct_bst(self, left, right, path):
+        if left > right:
+            return None
+        middle = (left+right)//2
+        path[middle].left = self.construct_bst(left, middle-1, path)
+        path[middle].right = self.construct_bst(middle+1, right, path)
+        return path[middle]
+    
+    def balanceBST(self, root: TreeNode) -> TreeNode:
+        path = self.inorder_bts(root)
+        return self.construct_bst(0, len(path)-1, path)
+
+8.)Number of Pairs Satisfying Inequality
+class Solution:
+    def numberOfPairs(self, nums1: List[int], nums2: List[int], diff: int) -> int:
+        def merge_sort(nums):
+            if len(nums) <= 1: return 0
+            mid = len(nums) // 2
+            left = nums[:mid]
+            right = nums[mid:]
+            c_l = merge_sort(left)
+            c_r = merge_sort(right)
+            # This part we count the pairs
+            i = j = c = 0
+            while i < len(left) and j < len(right):
+                if left[i] <= right[j] + diff:
+                    c += (len(right) - j)
+                    i += 1
+                else:
+                    j += 1            
+            # here we do the regular merge of merge sort 
+            i = j = k = 0
+            while i < len(left) and j < len(right):
+                if right[j] < left[i]:
+                    nums[k] = right[j]
+                    j += 1
+                else:
+                    nums[k] = left[i]
+                    i += 1
+                k += 1
+            while i < len(left):
+                nums[k] = left[i]
+                i += 1
+                k += 1
+            while j < len(right):
+                nums[k] = right[j]
+                j += 1
+                k += 1
+            return c_l + c_r + c
+        diff_arr = [a - b for (a, b) in zip(nums1, nums2)]
+        return merge_sort(diff_arr) 
+
+
+9.)Number of Ways to Reorder Array to Get Same BST
+class Solution:
+    def numOfWays(self, nums: List[int]) -> int:
+        def dp(nums: List[int]) -> int:
+            n = len(nums)
+            if n < 3: return 1
+            root, left, right = nums[0], [], []
+            for x in nums:
+                if   x < root: left .append(x)
+                elif x > root: right.append(x)
+            return dp(left) * dp(right) * comb(n-1, len(left))
+        return (dp(nums)-1) %1000000007
+
+10.) Count of Smaller Numbers after Self
+class FenwickTree:
+  def __init__(self, n: int):
+    self.sums = [0] * (n + 1)
+  def update(self, i: int, delta: int) -> None:
+    while i < len(self.sums):
+      self.sums[i] += delta
+      i += FenwickTree.lowbit(i)
+  def get(self, i: int) -> int:
+    summ = 0
+    while i > 0:
+      summ += self.sums[i]
+      i -= FenwickTree.lowbit(i)
+    return summ
+  @staticmethod
+  def lowbit(i: int) -> int:
+    # get the lowest set bit in the binary representation of i
+    return i & -i
+class Solution:
+  def countSmaller(self, nums: List[int]) -> List[int]:
+    ans = []
+    ranks = collections.Counter()
+    self._getRanks(nums, ranks)
+    tree = FenwickTree(len(ranks))
+    for num in reversed(nums):
+      # get the number of elements smaller than num that have been seen so far
+      ans.append(tree.get(ranks[num] - 1))
+      # update the rank of num in the Fenwick tree
+      tree.update(ranks[num], 1)
+    return ans[::-1]
+  def _getRanks(self, nums: List[int], ranks: Dict[int, int]) -> None:
+    rank = 0
+    for num in sorted(set(nums)):
+      # assign a rank to each unique element
+      rank += 1
+      ranks[num] = rank

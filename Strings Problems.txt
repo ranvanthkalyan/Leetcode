@@ -1,0 +1,197 @@
+1.) Longest Common Prefix
+class Solution:
+    def longestCommonPrefix(self, v: List[str]) -> str:
+        ans=""
+        v=sorted(v)
+        first=v[0]
+        last=v[-1]
+        for i in range(min(len(first),len(last))):
+            if(first[i]!=last[i]):
+                return ans
+            ans+=first[i]
+        return ans 
+
+
+2.) Count and Say
+class Solution:
+    def count(self,n,word):
+        if n==0:
+            return word
+        d = []
+        i = 0
+        while i<len(word):
+            j = i
+            count = 0
+            while j<len(word) and word[i]==word[j]:
+                count +=1
+                j +=1
+            d.append((word[i],count))
+            i = j 
+        word = ''
+        for key,val in d:
+            word +=(str(val)+key)
+        return self.count(n-1,word)
+
+    def countAndSay(self, n: int) -> str:
+        if n==1:
+            return '1'
+        return self.count(n-1,'1')
+
+
+3.)Group Anagrams
+class Solution:
+    def groupAnagrams(self, strs):
+        anagram_map = defaultdict(list)    
+        for word in strs:
+            sorted_word = ''.join(sorted(word))
+            anagram_map[sorted_word].append(word)
+        return list(anagram_map.values())
+
+
+4.)Restore IP Addresses
+class Solution:
+    def restoreIpAddresses(self, s: str) -> List[str]:
+        res=[]
+        cur=[]
+        def backtrack(i):
+            if i==len(s) and len(cur)==4:
+                res.append(".".join(cur))
+                return
+            if len(cur)>4 or i>=len(s):
+                return
+            if s[i]=='0':
+                cur.append(s[i])
+                backtrack(i+1)
+                cur.pop()
+                return
+            j=0
+            while j<4 and i+j<len(s):
+                if int(s[i:i+j+1])<256:
+                    cur.append(s[i:i+j+1])
+                    backtrack(i+j+1)
+                    cur.pop()
+                j+=1
+        backtrack(0)
+        return res
+
+
+5.)Interleaving String
+class Solution:
+    def isInterleave(self, s1: str, s2: str, s3: str) -> bool:
+        if len(s1)+len(s2)!=len(s3):
+            return False       
+        dp = [[False for i in range(len(s2)+1)] for j in range(len(s1)+1)]
+        dp[-1][-1] = True
+        for i in range(len(s1),-1,-1):
+            for j in range(len(s2),-1,-1):
+                if i<len(s1) and s1[i]==s3[i+j]:
+                    dp[i][j] = dp[i][j] or dp[i+1][j]
+                if j<len(s2) and s2[j]==s3[i+j]:
+                    dp[i][j] = dp[i][j] or dp[i][j+1]
+        return dp[0][0]
+
+
+6.)Word Break
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        def construct(current,wordDict, memo={}):
+            if current in memo:
+                return memo[current]
+            if not current:
+                return True
+            for word in wordDict:
+                if current.startswith(word):
+                    new_current = current[len(word):]
+                    if construct(new_current,wordDict,memo):
+                        memo[current] = True
+                        return True
+            memo[current] = False
+            return False
+        return construct(s,wordDict)
+
+
+7.)Isomorphic Strings
+class Solution:
+    def isIsomorphic(self, s: str, t: str) -> bool:
+        m1=[]
+        m2=[]
+        for i in s:
+            m1.append(s.index(i))            
+        for i in t:
+            m2.append(t.index(i))            
+        if m1==m2 :
+            return True     
+        return False
+
+
+8.)Bulls and Cows
+class Solution:
+    def getHint(self, secret: str, guess: str) -> str:
+        bulls = 0
+        cows = 0
+        secret_dict  = {}
+        guess_dict  = {}        
+        for i, j in zip(secret, guess):
+            if i == j:
+                bulls += 1
+            else:
+                secret_dict[i] = secret_dict.get(i, 0) + 1
+                guess_dict[j] = guess_dict.get(j, 0) + 1
+        for i in secret_dict:
+            if i in guess_dict:
+                cows += min(secret_dict[i], guess_dict[i])
+        return f"{bulls}A{cows}B"
+
+
+9.)Remove Duplicate Letters
+class Solution:
+    def removeDuplicateLetters(self, s: str) -> str:
+        st=[]
+        for i in range(len(s)):
+            # print(s[i])
+            if(s[i] not in st):
+                j=len(st)-1
+                # print()
+                while(j>=0 and st[j]>s[i] and st[j] in s[i+1:]):
+                    st.pop()
+                    j-=1
+                st.append(s[i])
+        st="".join(st)
+        return(st)
+
+
+10.)Maximum Product of Word Lengths
+class Solution:
+  def maxProduct(self, words: List[str]) -> int:
+    ans = 0
+    def getMask(word: str) -> int:
+      mask = 0
+      for c in word:
+        mask |= 1 << ord(c) - ord('a')
+      return mask
+    masks = [getMask(word) for word in words]
+    for i in range(len(words)):
+      for j in range(i):
+        if not (masks[i] & masks[j]):
+          ans = max(ans, len(words[i]) * len(words[j]))
+    return ans
+
+
+11.)Zigzag Conversion
+class Solution(object):
+    def convert(self, s, numRows):
+        if numRows == 1 or numRows >= len(s):
+            return s       
+        rows = [[] for row in range(numRows)]
+        index = 0
+        step = -1
+        for char in s:
+            rows[index].append(char)
+            if index == 0:
+                step = 1
+            elif index == numRows - 1:
+                step = -1
+            index += step
+        for i in range(numRows):
+            rows[i] = ''.join(rows[i])
+        return ''.join(rows)
